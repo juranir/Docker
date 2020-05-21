@@ -1,0 +1,50 @@
+version: '3.1'
+
+volumes:
+  db:
+  wordpress:
+
+# If you need use a different folder to save a volume use the code below for each volume:
+#    driver_opts:
+#      type: none
+#      device: /opt/wp/wordpress
+#      o: bind
+
+networks:
+  app:
+    driver: bridge
+
+
+services:
+  wordpress:
+    container_name: WP
+    image: wordpress
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: siteuser
+      WORDPRESS_DB_PASSWORD: sitepassword
+      WORDPRESS_DB_NAME: site
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - app
+
+  db:
+    container_name: BD
+    image: mariadb:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: "site"
+      MYSQL_USER: "siteuser"
+      MYSQL_PASSWORD: "sitepassword"
+      MYSQL_ROOT_PASSWORD: "abc123"
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - app
